@@ -10,7 +10,7 @@ endif()
 
 include_directories(include src src/rml/include ${CMAKE_CURRENT_BINARY_DIR})
 
-option(TBB_BUILD_SHARED          "Build TBB shared library" ON)
+option(TBB_BUILD_SHARED          "Build TBB shared library" OFF)
 option(TBB_BUILD_STATIC          "Build TBB static library" ON)
 option(TBB_BUILD_TBBMALLOC       "Build TBB malloc library" ON)
 option(TBB_BUILD_TBBMALLOC_PROXY "Build TBB malloc proxy library" ON)
@@ -133,20 +133,21 @@ add_custom_target(tbb_def_files DEPENDS tbb.def tbbmalloc.def)
 
 # TBB library
 if (TBB_BUILD_STATIC)
-  add_library(tbb_static STATIC ${tbb_src})
-  set_property(TARGET tbb_static APPEND PROPERTY COMPILE_DEFINITIONS "__TBB_BUILD=1")
-  set_property(TARGET tbb_static APPEND_STRING PROPERTY COMPILE_FLAGS ${ENABLE_RTTI})
-  install(TARGETS tbb_static ARCHIVE DESTINATION lib)
-  target_include_directories(tbb_static PUBLIC include)
+  add_library(tbb STATIC ${tbb_src})
+  set_property(TARGET tbb APPEND PROPERTY DEBUG_POSTFIX "_debug")
+  set_property(TARGET tbb APPEND PROPERTY COMPILE_DEFINITIONS "__TBB_BUILD=1")
+  set_property(TARGET tbb APPEND_STRING PROPERTY COMPILE_FLAGS ${ENABLE_RTTI})
+  install(TARGETS tbb ARCHIVE DESTINATION lib)
+  target_include_directories(tbb PUBLIC include)
 
   find_library (LIBDL_LIBRARIES dl)
   if (LIBDL_LIBRARIES)
-    target_link_libraries (tbb_static ${LIBDL_LIBRARIES})
+    target_link_libraries (tbb ${LIBDL_LIBRARIES})
   endif ()
 
   find_library (LIBPTHREAD_LIBRARIES pthread)
   if (LIBPTHREAD_LIBRARIES)
-    target_link_libraries (tbb_static ${LIBPTHREAD_LIBRARIES})
+    target_link_libraries (tbb ${LIBPTHREAD_LIBRARIES})
   endif ()
 endif()
 
