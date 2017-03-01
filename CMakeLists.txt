@@ -200,6 +200,9 @@ if (TBB_BUILD_STATIC)
   set_property(TARGET tbb_static APPEND PROPERTY COMPILE_DEFINITIONS "__TBB_BUILD=1")
   set_property(TARGET tbb_static APPEND_STRING PROPERTY COMPILE_FLAGS ${ENABLE_RTTI})
   install(TARGETS tbb_static ARCHIVE DESTINATION lib)
+  if (MSVC)
+    target_compile_definitions(tbb_static PUBLIC __TBB_NO_IMPLICIT_LINKAGE=1)
+  endif()
 endif()
 
 if (TBB_BUILD_SHARED)
@@ -215,12 +218,16 @@ if (TBB_BUILD_SHARED)
   else ()
     set_property(TARGET tbb APPEND PROPERTY LINK_FLAGS "-Wl,-version-script,${CMAKE_CURRENT_BINARY_DIR}/tbb.def")
   endif()
+
   install(TARGETS tbb
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
           RUNTIME DESTINATION bin)
   if (UNIX AND NOT APPLE)
     target_link_libraries(tbb PUBLIC pthread dl)
+  endif()
+  if (MSVC)
+    target_compile_definitions(tbb PUBLIC __TBB_NO_IMPLICIT_LINKAGE=1)
   endif()
 endif()
 
@@ -242,6 +249,9 @@ if(TBB_BUILD_TBBMALLOC)
     add_library(tbbmalloc_static STATIC ${tbbmalloc_static_src})
     set_property(TARGET tbbmalloc_static APPEND PROPERTY COMPILE_DEFINITIONS "__TBBMALLOC_BUILD=1")
     set_property(TARGET tbbmalloc_static APPEND_STRING PROPERTY COMPILE_FLAGS ${DISABLE_RTTI})
+    if (MSVC)
+      target_compile_definitions(tbbmalloc_static PUBLIC __TBB_NO_IMPLICIT_LINKAGE=1)
+    endif()
     install(TARGETS tbbmalloc_static ARCHIVE DESTINATION lib)
   endif()
 
@@ -256,6 +266,9 @@ if(TBB_BUILD_TBBMALLOC)
       set_property(TARGET tbbmalloc APPEND PROPERTY LINK_FLAGS "/DEF:${CMAKE_CURRENT_BINARY_DIR}/tbbmalloc.def")
     else ()
       set_property(TARGET tbbmalloc APPEND PROPERTY LINK_FLAGS "-Wl,-version-script,${CMAKE_CURRENT_BINARY_DIR}/tbbmalloc.def")
+    endif()
+    if (MSVC)
+      target_compile_definitions(tbbmalloc PUBLIC __TBB_NO_IMPLICIT_LINKAGE=1)
     endif()
     install(TARGETS tbbmalloc
             LIBRARY DESTINATION lib
